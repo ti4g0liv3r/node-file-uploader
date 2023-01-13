@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <title>File Uploader</title>
+</head>
+
+<body>
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="content box">
+                <h1>Simple File Uploader</h1>
+                <p>Node.js app to handle file upload</p>
+                <hr />
+
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <div class="field">
+                        <label class="label">Single File Input</label>
+                        <div class="file has-name is-boxed">
+                            <label class="file-label">
+                                <input class="file-input" type="file" id="files" accept="image/*" />
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    <span class="file-label">
+                                        Choose a file…
+                                    </span>
+                                </span>
+                                <span class="file-name" id="file-name">
+
+                                </span>
+
+                            </label>
+                        </div>
+                    </div>
+                    <article class="message is-primary" style="display: none" id="alert">
+                        <div class="message-body" id="message">
+                        </div>
+                    </article>
+                    <div>
+                        <div class="field is-grouped">
+                            <div class="control">
+                                <button class="button is-link">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const form = document.getElementById('uploadForm')
+
+        const sendFiles = async () => {
+            //This will be an object
+            const files = document.getElementById('files').files
+
+            const formData = new FormData()
+
+            Object.keys(files).forEach((key) => {
+                formData.append(files.item(key).name, files.item(key))
+            })
+
+            //If an ID is specified, user can upload files and it will be stored on server on a folder with id's name
+
+            const response = await fetch('http://localhost:3500/upload/4321', {
+                method: 'POST',
+                body: formData
+            })
+
+            const json = await response.json()
+
+            const fileName = document.getElementById('file-name')
+            fileName.textContent = `Status: ${json?.status}`
+
+
+            const alert = document.getElementById('alert')
+            if (json?.status === 'error') {
+                alert.className = 'message is-danger'
+            }
+            alert.style.display = 'block'
+
+            const serverResponse = document.getElementById('message')
+            serverResponse.textContent = json?.message
+
+
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault()
+            sendFiles()
+        })
+    </script>
+</body>
+
+</html>
